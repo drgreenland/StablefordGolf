@@ -21,8 +21,28 @@ struct CourseFormView: View {
                 }
 
                 Section("Tee Colours") {
-                    ForEach(tees) { tee in
-                        Text(tee.name)
+                    ForEach($tees) { $tee in
+                        DisclosureGroup {
+                            HStack {
+                                Text("Course Rating")
+                                Spacer()
+                                TextField("72.0", value: $tee.courseRating,
+                                          format: .number.precision(.fractionLength(1)))
+                                    .keyboardType(.decimalPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 80)
+                            }
+                            HStack {
+                                Text("Slope Rating")
+                                Spacer()
+                                TextField("113", value: $tee.slopeRating, format: .number)
+                                    .keyboardType(.numberPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 80)
+                            }
+                        } label: {
+                            Text(tee.name)
+                        }
                     }
                     .onDelete { idx in tees.remove(atOffsets: idx) }
                     Button("Add Tee") { showingAddTee = true }

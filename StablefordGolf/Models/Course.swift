@@ -23,6 +23,8 @@ struct TeeDistance: Codable, Hashable {
 struct TeeColor: Identifiable, Codable, Hashable {
     var id: UUID = UUID()
     var name: String
+    var courseRating: Double = 72.0
+    var slopeRating: Int = 113
 }
 
 // MARK: - Course mapper JSON import
