@@ -30,6 +30,8 @@ struct HoleFormView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background { AppColors.grassGradient.ignoresSafeArea() }
             .navigationTitle("Hole \(hole.number)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

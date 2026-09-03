@@ -89,6 +89,8 @@ struct NewRoundView: View {
                     }
                 }
         }
+        .scrollContentBackground(.hidden)
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle("New Round")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

@@ -26,6 +26,8 @@ struct PlayerFormView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background { AppColors.grassGradient.ignoresSafeArea() }
             .navigationTitle(isNew ? "New Player" : "Edit Player")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

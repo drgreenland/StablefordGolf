@@ -17,6 +17,8 @@ struct CourseListView: View {
             }
             .onDelete(perform: dataManager.deleteCourse)
         }
+        .scrollContentBackground(.hidden)
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle("Courses")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {

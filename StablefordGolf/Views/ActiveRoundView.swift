@@ -40,6 +40,7 @@ struct ActiveRoundView: View {
             }
             .padding()
         }
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle("\(round.course.name)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

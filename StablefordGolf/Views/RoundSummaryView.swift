@@ -17,6 +17,7 @@ struct RoundSummaryView: View {
             }
             .padding()
         }
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle(round.course.name)
         .navigationBarTitleDisplayMode(.inline)
     }

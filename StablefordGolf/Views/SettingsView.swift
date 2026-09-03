@@ -46,6 +46,8 @@ struct SettingsView: View {
                 LabeledContent("Bundle ID", value: "com.davidgreenland.StablefordGolf")
             }
         }
+        .scrollContentBackground(.hidden)
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.large)
         .sheet(item: $exportFile) { file in

@@ -17,6 +17,8 @@ struct PlayerListView: View {
             }
             .onDelete(perform: dataManager.deletePlayer)
         }
+        .scrollContentBackground(.hidden)
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle("Players")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {

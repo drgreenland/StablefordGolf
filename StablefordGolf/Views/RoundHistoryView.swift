@@ -19,6 +19,8 @@ struct RoundHistoryView: View {
             }
             .onDelete(perform: dataManager.deleteRound)
         }
+        .scrollContentBackground(.hidden)
+        .background { AppColors.grassGradient.ignoresSafeArea() }
         .navigationTitle("Round History")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {

@@ -11,6 +11,7 @@ struct CourseFormView: View {
     @State private var holes: [Hole] = []
     @State private var tees: [TeeColor] = []
     @State private var showingAddTee = false
+    @State private var teesSectionExpanded = true
     @State private var editingHole: Hole? = nil
 
     var body: some View {
@@ -20,32 +21,37 @@ struct CourseFormView: View {
                     TextField("Name", text: $name)
                 }
 
-                Section("Tee Colours") {
-                    ForEach($tees) { $tee in
-                        DisclosureGroup {
-                            HStack {
-                                Text("Course Rating")
-                                Spacer()
-                                TextField("72.0", value: $tee.courseRating,
-                                          format: .number.precision(.fractionLength(1)))
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 80)
-                            }
-                            HStack {
-                                Text("Slope Rating")
-                                Spacer()
-                                TextField("113", value: $tee.slopeRating, format: .number)
-                                    .keyboardType(.numberPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 80)
-                            }
-                        } label: {
+                Section {
+                    DisclosureGroup(isExpanded: $teesSectionExpanded) {
+                        ForEach(tees) { tee in
                             Text(tee.name)
                         }
+                        .onDelete { idx in tees.remove(atOffsets: idx) }
+                        Button { showingAddTee = true } label: {
+                            Label("Add Tee", systemImage: "plus")
+                        }
+                        if !tees.isEmpty {
+                            NavigationLink {
+                                TeeDistanceMatrixView(tees: $tees, holes: $holes)
+                            } label: {
+                                Label("Edit Tee Distances", systemImage: "tablecells")
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text("Tee Colours").font(.headline)
+                            Spacer()
+                            if !tees.isEmpty {
+                                Text("\(tees.count)")
+                                    .font(.caption.bold())
+                                    .padding(.horizontal, 7)
+                                    .padding(.vertical, 3)
+                                    .background(AppColors.fairwayGreen)
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
+                        }
                     }
-                    .onDelete { idx in tees.remove(atOffsets: idx) }
-                    Button("Add Tee") { showingAddTee = true }
                 }
 
                 Section("Holes (\(holes.count))") {
@@ -62,6 +68,8 @@ struct CourseFormView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background { AppColors.grassGradient.ignoresSafeArea() }
             .navigationTitle(isNew ? "New Course" : "Edit Course")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

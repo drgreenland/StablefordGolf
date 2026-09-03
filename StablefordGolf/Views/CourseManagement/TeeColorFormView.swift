@@ -33,6 +33,8 @@ struct TeeColorFormView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background { AppColors.grassGradient.ignoresSafeArea() }
             .navigationTitle("Add Tee")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
