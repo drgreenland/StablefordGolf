@@ -11,8 +11,7 @@ struct NewRoundView: View {
     @State private var teamAssignments: [UUID: Int] = [:]  // player id → team (0 or 1)
 
     var body: some View {
-        NavigationStack {
-            Form {
+        Form {
                 // Players section
                 Section("Players (2–4)") {
                     ForEach(dataManager.players) { player in
@@ -89,14 +88,13 @@ struct NewRoundView: View {
                         }
                     }
                 }
-            }
-            .navigationTitle("New Round")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Start") { startRound() }
-                        .disabled(!canStart)
-                }
+        }
+        .navigationTitle("New Round")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Start") { startRound() }
+                    .disabled(!canStart)
             }
         }
     }

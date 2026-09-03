@@ -3,13 +3,17 @@ import SwiftUI
 struct CourseListView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddCourse = false
+    @State private var editingCourse: Course? = nil
 
     var body: some View {
         List {
             ForEach(dataManager.courses) { course in
-                NavigationLink(value: CourseNavDest.edit(course)) {
+                Button {
+                    editingCourse = course
+                } label: {
                     CourseRow(course: course)
                 }
+                .foregroundColor(.primary)
             }
             .onDelete(perform: dataManager.deleteCourse)
         }
@@ -24,16 +28,10 @@ struct CourseListView: View {
         .sheet(isPresented: $showingAddCourse) {
             CourseFormView(course: nil)
         }
-        .navigationDestination(for: CourseNavDest.self) { dest in
-            if case .edit(let course) = dest {
-                CourseFormView(course: course)
-            }
+        .sheet(item: $editingCourse) { course in
+            CourseFormView(course: course)
         }
     }
-}
-
-enum CourseNavDest: Hashable {
-    case edit(Course)
 }
 
 struct CourseRow: View {

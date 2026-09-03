@@ -3,13 +3,17 @@ import SwiftUI
 struct PlayerListView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddPlayer = false
+    @State private var editingPlayer: Player? = nil
 
     var body: some View {
         List {
             ForEach(dataManager.players) { player in
-                NavigationLink(value: PlayerNavDest.edit(player)) {
+                Button {
+                    editingPlayer = player
+                } label: {
                     PlayerRow(player: player)
                 }
+                .foregroundColor(.primary)
             }
             .onDelete(perform: dataManager.deletePlayer)
         }
@@ -26,16 +30,10 @@ struct PlayerListView: View {
         .sheet(isPresented: $showingAddPlayer) {
             PlayerFormView(player: nil)
         }
-        .navigationDestination(for: PlayerNavDest.self) { dest in
-            if case .edit(let player) = dest {
-                PlayerFormView(player: player)
-            }
+        .sheet(item: $editingPlayer) { player in
+            PlayerFormView(player: player)
         }
     }
-}
-
-enum PlayerNavDest: Hashable {
-    case edit(Player)
 }
 
 struct PlayerRow: View {
