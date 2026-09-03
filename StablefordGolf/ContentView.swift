@@ -1,86 +1,156 @@
-//
-//  ContentView.swift
-//  StablefordGolf
-//
-//  Created by M4 on 4/9/2026.
-//
-
 import SwiftUI
-import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+    @EnvironmentObject var dataManager: DataManager
 
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+        NavigationStack {
+            ZStack {
+                AppColors.grassGradient.ignoresSafeArea()
+
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // App title
+                        VStack(spacing: 4) {
+                            Image(systemName: "flag.circle.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.white)
+                            Text("Stableford Golf")
+                                .font(.largeTitle.bold())
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, 20)
+
+                        // Active rounds
+                        let activeRounds = dataManager.rounds.filter { $0.status == .inProgress }
+                        if !activeRounds.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Active Rounds")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal)
+
+                                ForEach(activeRounds) { round in
+                                    NavigationLink(value: NavigationDestination.activeRound(round)) {
+                                        ActiveRoundBanner(round: round)
+                                    }
+                                }
+                            }
+                        }
+
+                        // Main actions
+                        VStack(spacing: 12) {
+                            NavigationLink(value: NavigationDestination.newRound) {
+                                MenuButton(title: "New Round", icon: "plus.circle.fill", color: AppColors.fairwayGreen)
+                            }
+                            NavigationLink(value: NavigationDestination.history) {
+                                MenuButton(title: "Round History", icon: "clock.fill", color: AppColors.skyBlue)
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Management
+                        VStack(spacing: 12) {
+                            NavigationLink(value: NavigationDestination.players) {
+                                MenuButton(title: "Players", icon: "person.2.fill", color: .purple)
+                            }
+                            NavigationLink(value: NavigationDestination.courses) {
+                                MenuButton(title: "Courses", icon: "map.fill", color: .orange)
+                            }
+                            NavigationLink(value: NavigationDestination.settings) {
+                                MenuButton(title: "Settings", icon: "gearshape.fill", color: .gray)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 30)
                     }
                 }
-                .onDelete(perform: deleteItems)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+            .navigationBarHidden(true)
+            .navigationDestination(for: NavigationDestination.self) { dest in
+                switch dest {
+                case .newRound:
+                    NewRoundView()
+                case .history:
+                    RoundHistoryView()
+                case .players:
+                    PlayerListView()
+                case .courses:
+                    CourseListView()
+                case .settings:
+                    SettingsView()
+                case .activeRound(let round):
+                    ActiveRoundView(round: round)
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
+// MARK: - Navigation destination enum
+enum NavigationDestination: Hashable {
+    case newRound
+    case history
+    case players
+    case courses
+    case settings
+    case activeRound(Round)
+}
+
+extension Round: Hashable {
+    static func == (lhs: Round, rhs: Round) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+}
+
+// MARK: - Subviews
+struct ActiveRoundBanner: View {
+    let round: Round
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(round.course.name)
+                    .font(.subheadline.bold())
+                    .foregroundColor(.primary)
+                Text("Hole \(round.currentHole) · \(round.matchStatusText)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .background(.regularMaterial)
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+}
+
+struct MenuButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(color)
+                .frame(width: 36)
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.primary)
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .background(.regularMaterial)
+        .cornerRadius(12)
+    }
+}
 
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    ContentView().environmentObject(DataManager.shared)
 }
